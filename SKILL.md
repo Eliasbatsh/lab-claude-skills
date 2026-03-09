@@ -40,6 +40,15 @@ AskUserQuestion(questions=[
     ]
   },
   {
+    "question": "Where should I save the output figures?",
+    "header": "Output folder",
+    "multiSelect": False,
+    "options": [
+      {"label": "figures/ folder",      "description": "Save to a figures/ subfolder in the current directory. I'll create it if it doesn't exist."},
+      {"label": "Custom directory",     "description": "Type the path where you want figures saved (absolute or relative)."},
+    ]
+  },
+  {
     "question": "Which Python environment should I use to run the script?",
     "header": "Python env",
     "multiSelect": False,
@@ -125,6 +134,8 @@ AskUserQuestion(questions=[
 |--------|-----------|
 | Graph type | Choose the matching recipe from **Common graph recipes** below |
 | Demo data | Generate synthetic data from the matching recipe |
+| figures/ folder | Set `OUT_DIR = 'figures'` at the top of the script; all `ms.save()` calls use `f'{OUT_DIR}/filename.pdf'`. The `ms.save()` function creates the directory automatically. |
+| Custom directory | Set `OUT_DIR = '{user_path}'` at the top of the script; same pattern as above. |
 | Search my project | Use Glob to find `**/*.csv` and `**/*.parquet` files, list them, ask user to pick one, then load with `pd.read_parquet` / `pd.read_csv` |
 | Typed data path | Load with `pd.read_parquet(path)` / `pd.read_csv(path)` as appropriate |
 | Okabe-Ito | Use `ms.TREATMENT_COLORS` / `ms.STATE_COLORS` as-is |
