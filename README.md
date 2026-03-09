@@ -61,6 +61,16 @@ mkdir -p ~/.claude/skills/manuscript_graphs/
 cp SKILL.md ms_style.py ~/.claude/skills/manuscript_graphs/
 ```
 
+### 3. Getting updates
+
+When the skill is updated, pull the latest changes and re-copy the files:
+
+```bash
+cd lab-claude-skills
+git pull
+# then repeat whichever cp command you used in step 2
+```
+
 ### Python dependencies
 
 ```bash
