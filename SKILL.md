@@ -34,10 +34,20 @@ AskUserQuestion(questions=[
     "header": "Data location",
     "multiSelect": False,
     "options": [
-      {"label": "Use demo / fake data",     "description": "Generate synthetic data matching the plot type — good for testing."},
-      {"label": "feature_analysis/ directory", "description": "Parquet or CSV files in the feature_analysis/ folder."},
-      {"label": "Results_HMM/ directory",   "description": "HMM output files (state sequences, probabilities, confusion matrices)."},
-      {"label": "I'll type the path",       "description": "Type the exact file path or variable name in the text box."},
+      {"label": "Use demo data",        "description": "Generate synthetic data matching the plot type — good for testing the style."},
+      {"label": "Search my project",    "description": "I'll search your project directory for CSV and Parquet files and let you pick one."},
+      {"label": "I'll type the path",   "description": "Type the exact file or folder path in the text box."},
+    ]
+  },
+  {
+    "question": "Which Python environment should I use to run the script?",
+    "header": "Python env",
+    "multiSelect": False,
+    "options": [
+      {"label": "Type my env path",     "description": "I'll provide the path to my conda env or venv (e.g. /opt/miniconda3/envs/myenv)."},
+      {"label": "Create conda env",     "description": "Create a new conda environment with all required packages. I have conda installed."},
+      {"label": "Create pip venv",      "description": "Create a new Python venv and install packages with pip. I have Python installed."},
+      {"label": "Use system Python",    "description": "Packages are already installed globally — just use python / python3."},
     ]
   }
 ])
@@ -106,7 +116,8 @@ AskUserQuestion(questions=[
 |--------|-----------|
 | Graph type | Choose the matching recipe from **Common graph recipes** below |
 | Demo data | Generate synthetic data from the matching recipe |
-| Real data path | Load with `pd.read_parquet(path)` / `pd.read_csv(path)` as appropriate |
+| Search my project | Use Glob to find `**/*.csv` and `**/*.parquet` files, list them, ask user to pick one, then load with `pd.read_parquet` / `pd.read_csv` |
+| Typed data path | Load with `pd.read_parquet(path)` / `pd.read_csv(path)` as appropriate |
 | Okabe-Ito | Use `ms.TREATMENT_COLORS` / `ms.STATE_COLORS` as-is |
 | Tol Bright / Muted | `pal = ms.get_palette('tol_bright')` or `'tol_muted'` |
 | Custom | Apply user-provided hex codes directly |
@@ -115,6 +126,20 @@ AskUserQuestion(questions=[
 | Presentation | `ms.apply(font_size_offset=+2)` |
 | Named journal preset | `preset = ms.apply_journal('nature')` — prints all requirements |
 | "Other" journal | Web-search `[journal name] figure guidelines author instructions`, extract requirements, apply manually |
+| Type my env path | Run script as `{env_path}/bin/python script.py`. If it's a named conda env, use `conda run -n {env_name} python script.py` |
+| Create conda env | First run `conda --version`. If found, run: `conda create -n manuscript_env python=3.11 matplotlib seaborn pandas numpy scikit-learn -y` then use `conda run -n manuscript_env python script.py`. If conda is not found, fall back to the pip venv flow below. |
+| Create pip venv | First run `python --version \|\| python3 --version` to confirm Python exists. If found, run: `python -m venv manuscript_env && source manuscript_env/bin/activate && pip install matplotlib seaborn pandas numpy scikit-learn`. If Python is not found at all, see **No Python installed** below. |
+| Use system Python | Try `python script.py`; if a `ModuleNotFoundError` occurs, run `pip install {missing_package}` and retry once. |
+
+**No Python installed — what to tell the user:**
+There is no workaround: the skill requires Python to run. Tell the user clearly and recommend **Miniconda** as the single install that gives them Python, conda, and pip in one step:
+
+> Python is required to generate figures but wasn't found on your system. The easiest fix is to install **Miniconda**, which gives you Python, conda, and pip in one small installer:
+>
+> - **macOS / Linux:** https://docs.conda.io/en/latest/miniconda.html
+> - **Windows:** https://docs.conda.io/en/latest/miniconda.html (use the `.exe` installer)
+>
+> After installing, restart your terminal and re-run `/manuscript_graphs`. Choose **"Create conda env"** and I'll set everything up for you.
 
 ---
 
@@ -122,7 +147,10 @@ AskUserQuestion(questions=[
 
 ```python
 import sys
-sys.path.insert(0, '/Users/eliasbatshon/Documents/GitHub/NETosisProject/.agents/skills/manuscript_graphs/')
+# Set this to wherever the skill was installed (see README Installation step 2)
+# e.g. '/path/to/project/.agents/skills/manuscript_graphs/'  ← project-local
+#   or os.path.expanduser('~/.claude/skills/manuscript_graphs/')  ← global
+sys.path.insert(0, '/path/to/skills/manuscript_graphs/')
 import ms_style as ms
 
 ms.apply()                     # default (8/7 pt, Okabe-Ito)
@@ -242,13 +270,18 @@ ms.panel_label(ax, 'a')    # Nature family — lowercase
 
 ## Step 9 — Saving
 
+Always save in **vector format first** (PDF or SVG). Vector files have infinite resolution — they never pixelate when zoomed or printed, and are required or preferred by most journals for line art.
+
 ```python
-# Save both for every figure:
-fig.savefig('figure.pdf', dpi=300, bbox_inches='tight', facecolor='white')  # submission
-fig.savefig('figure.png', dpi=300, bbox_inches='tight', facecolor='white')  # review
-# or use:
-ms.save(fig, 'figure.pdf')   # also closes the figure
+# Always save vector (PDF) as the primary output:
+ms.save(fig, 'figure.pdf')          # PDF — preferred vector; embeds fonts; journal standard
+ms.save(fig, 'figure.svg')          # SVG — alternative vector; editable in Illustrator/Inkscape
+
+# Also save a raster preview for quick review (e.g. in Finder, Slack, email):
+fig.savefig('figure.png', dpi=300, bbox_inches='tight', facecolor='white')
 ```
+
+> **Why PDF over PNG?** A PNG saved at 300 dpi looks fine on screen but will appear pixelated if a journal enlarges it during typesetting. A PDF scales to any size without quality loss.
 
 ---
 
@@ -411,4 +444,4 @@ ms.save(fig, 'output.pdf')
 - [ ] Individual data points shown (strip/dot) where N < 30
 - [ ] Stat brackets use `ms.stat_annot()`, symbols defined in legend
 - [ ] Panel labels correct case for target journal
-- [ ] Saved as PDF (submission) + PNG (review)
+- [ ] Saved as **PDF or SVG** (vector, submission) + PNG (raster preview)
