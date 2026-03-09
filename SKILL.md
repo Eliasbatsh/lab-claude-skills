@@ -1,5 +1,5 @@
 ---
-description: Create publication-quality (manuscript-ready) matplotlib figures for the NETosis project
+description: Create publication-quality (manuscript-ready) matplotlib figures for any research project
 ---
 
 # Manuscript Graph Skill
@@ -106,6 +106,15 @@ AskUserQuestion(questions=[
       {"label": "No specific journal / in-lab use", "description": "Use project defaults — no journal-specific constraints."},
       {"label": "Other — I'll specify",             "description": "Type the journal name and I will look up its requirements."},
     ]
+  },
+  {
+    "question": "Is there anything project-specific I should know before generating the plot? (e.g. group names, ordering, custom colors, axis labels, units)",
+    "header": "Project context",
+    "multiSelect": False,
+    "options": [
+      {"label": "Yes — I'll describe it", "description": "Tell me your conditions, categories, preferred colors, axis labels, or any other project conventions. Type in the text box."},
+      {"label": "No — generic is fine",  "description": "Use the palette and defaults I selected above. I can adjust names in the code afterward."},
+    ]
   }
 ])
 ```
@@ -126,6 +135,8 @@ AskUserQuestion(questions=[
 | Presentation | `ms.apply(font_size_offset=+2)` |
 | Named journal preset | `preset = ms.apply_journal('nature')` — prints all requirements |
 | "Other" journal | Web-search `[journal name] figure guidelines author instructions`, extract requirements, apply manually |
+| Yes — project context provided | Use the described group names, ordering, colors, and labels directly in the generated code instead of generic placeholders. Define a custom dict e.g. `colors = {'WT': '#0072B2', 'KO': '#E69F00'}` and `order = ['WT', 'KO']` at the top of the script. |
+| No — generic is fine | Use generic group names (`Group A`, `Group B`, etc.) as placeholders; user can rename after. |
 | Type my env path | Run script as `{env_path}/bin/python script.py`. If it's a named conda env, use `conda run -n {env_name} python script.py` |
 | Create conda env | First run `conda --version`. If found, run: `conda create -n manuscript_env python=3.11 matplotlib seaborn pandas numpy scikit-learn -y` then use `conda run -n manuscript_env python script.py`. If conda is not found, fall back to the pip venv flow below. |
 | Create pip venv | First run `python --version \|\| python3 --version` to confirm Python exists. If found, run: `python -m venv manuscript_env && source manuscript_env/bin/activate && pip install matplotlib seaborn pandas numpy scikit-learn`. If Python is not found at all, see **No Python installed** below. |
@@ -174,18 +185,27 @@ preset = ms.apply_journal('nature')   # journal-specific sizing + prints require
 
 ## Step 3 — Color palettes
 
+> **Project-specific constants:** `ms.TREATMENT_COLORS`, `ms.STATE_COLORS`, `ms.TREATMENT_ORDER`, and `ms.STATE_ORDER` are pre-configured for the NETosis project. For any other project, use the generic palette functions below and define your own color dict — e.g. `colors = {'GroupA': '#0072B2', 'GroupB': '#E69F00'}`.
+
 ### Option A — Okabe-Ito (DEFAULT)
 ```python
-ms.TREATMENT_COLORS   # already Okabe-Ito
-ms.STATE_COLORS       # already Okabe-Ito
+# Generic — works for any project:
 pal = ms.get_palette('okabe_ito')
+colors = {group: list(pal.values())[i] for i, group in enumerate(my_groups)}
+
+# NETosis project shorthand (pre-mapped to treatments/states):
+ms.TREATMENT_COLORS   # Ctrl, LPS, Aux, PMA
+ms.STATE_COLORS       # Normal, Decondensed, NETosis states
 ```
-| Role | Hex |
-|------|-----|
-| Ctrl / resting | `#0072B2` |
-| LPS / priming  | `#CC79A7` |
-| Aux            | `#E69F00` |
-| PMA / strong   | `#D55E00` |
+| Color name | Hex | Good for |
+|------------|-----|---------|
+| blue | `#0072B2` | Control / baseline |
+| reddish_purple | `#CC79A7` | Second condition |
+| orange | `#E69F00` | Third condition |
+| vermillion | `#D55E00` | Fourth condition |
+| sky_blue | `#56B4E9` | Fifth condition |
+| bluish_green | `#009E73` | Sixth condition |
+| yellow | `#F0E442` | Seventh condition |
 
 ### Option B — Paul Tol Bright
 ```python

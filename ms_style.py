@@ -1,8 +1,12 @@
 """
-ms_style.py — Manuscript styling module for NETosis project figures.
+ms_style.py — Manuscript styling module for publication-quality figures.
 
 Ground truth: Arial/Helvetica, Okabe-Ito colorblind-safe palette,
 white background, L-frame (no top/right spines), 300 dpi vector-ready.
+
+Project-specific constants (TREATMENT_COLORS, STATE_COLORS, etc.) are
+pre-configured for the NETosis project. For other projects, use the
+generic palette functions (get_palette) and define your own color dicts.
 
 Research references:
   - Wong B (2011) Nature Methods 8:441  → Okabe-Ito palette
