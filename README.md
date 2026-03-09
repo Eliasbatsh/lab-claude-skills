@@ -39,17 +39,27 @@ Generates publication-ready figures using `ms_style.py` — a styling module bui
 
 ## Installation
 
-**Option A — project-local (recommended):**
+### 1. Clone this repo
+
 ```bash
-cp -r manuscript_graphs/  /path/to/your/project/.agents/skills/manuscript_graphs/
+git clone https://github.com/eliasbatshon/lab-claude-skills.git
+cd lab-claude-skills
 ```
+
+### 2. Copy the skill files
+
+**Option A — project-local (recommended):**
+Installs the skill only for a specific project. Run this from inside the cloned repo:
+```bash
+cp SKILL.md ms_style.py /path/to/your/project/.agents/skills/manuscript_graphs/
+```
+Replace `/path/to/your/project/` with your actual project directory (e.g. `~/Documents/GitHub/NETosisProject`).
 
 **Option B — user-global (available in all Claude Code sessions):**
 ```bash
-cp -r manuscript_graphs/  ~/.claude/skills/manuscript_graphs/
+mkdir -p ~/.claude/skills/manuscript_graphs/
+cp SKILL.md ms_style.py ~/.claude/skills/manuscript_graphs/
 ```
-
-The skill folder must contain at minimum `SKILL.md` and `ms_style.py`.
 
 ### Python dependencies
 
